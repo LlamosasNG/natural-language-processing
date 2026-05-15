@@ -1,0 +1,338 @@
+11/5/26, 11:24
+
+OneNote
+
+Large Language Models
+martes, 21 de abril de 2026
+
+10:55 a. m.
+
+Origin of the term “Language Model”
+• The term language model emerged in speech recognition
+• Key figure: Fred Jelinek
+○ Research group: IBM Research, Yorktown Heights, New York (USA)
+○ Timeframe: late 1970s–1980s
+Original problem:
+Given ambiguous acoustic input, choose the most likely sequence of words
+Formalization:
+^ = 𝑎𝑟𝑔⁡𝑚𝑎𝑥⁡𝑃(𝐴 ∣ 𝑊) 𝑃(𝑊)
+𝑊
+𝑊
+
+• 𝑃(𝐴 ∣ 𝑊): acoustic model
+Why was probability a good fit for speech recognition instead of rules?
+(uncertainty, ambiguity, noisy input)
+
+Modern definition
+A language model assigns a probability to a sequence of tokens:
+
+𝑃(𝑤1 , 𝑤2 , … , 𝑤𝑛 )
+Using the chain rule:
+𝑛
+
+𝑃(𝑤𝑛1 ) = ∏ 𝑃(𝑤𝑡 ∣ 𝑤𝑡1− 1 )
+𝑡=1
+
+Interpretation:
+“How surprised should we be by the next token, given the previous ones?”
+MLE = Maximum Likelihood Estimation
+Core idea:
+Choose model parameters that make the observed training data as probable as possible.
+Formally, given data 𝐷 = 𝑤𝑛1 and parameters 𝜃:
+
+^ = 𝑎𝑟𝑔⁡𝑚𝑎𝑥⁡𝑃(𝐷 ∣ 𝜃)
+𝜃
+𝜃
+
+For language modeling:
+𝑛
+^ = 𝑎𝑟𝑔⁡𝑚𝑎𝑥⁡ ∏
+𝜃
+𝑃𝜃 (𝑤𝑡 ∣ 𝑤𝑡1− 1 )
+𝜃
+
+𝑡=1
+
+Because products are inconvenient:
+𝑛
+^ = 𝑎𝑟𝑔⁡𝑚𝑎𝑥⁡ ∑
+𝜃
+𝑙𝑜𝑔⁡𝑃𝜃 (𝑤𝑡 ∣ 𝑤𝑡1− 1 )
+𝜃
+
+𝑡=1
+
+N‑gram Language Models
+Markov approximation
+
+Exact conditioning is impossible → approximate:
+
+𝑃(𝑤𝑡 ∣ 𝑤𝑡1− 1 ) ≈ 𝑃(𝑤𝑡 ∣ 𝑤𝑡𝑡 −− 1(𝑛 − 1) )
+Examples:
+• Bigram: 𝑃(𝑤𝑡 ∣ 𝑤𝑡 − 1 )
+• Trigram: 𝑃(𝑤𝑡 , ∣ 𝑤𝑡 − 2 𝑤𝑡 − 1 )
+
+Estimating n‑gram probabilities
+Maximum likelihood estimate (MLE):
+
+𝑃(𝑤𝑡 ∣ 𝑤𝑡 − 1 ) =
+
+𝑐𝑜𝑢𝑛𝑡(𝑤𝑡 − 1 , 𝑤𝑡 )
+𝑐𝑜𝑢𝑛𝑡(𝑤𝑡 − 1 )
+
+Worked Numerical Example
+Corpus:
+<s> I like cats </s>
+<s> I like dogs </s>
+Counts:
+• count(I like) = 2
+• count(like cats) = 1
+• count(like dogs) = 1
+• count(like) = 2
+Compute:
+
+𝑃(𝑐𝑎𝑡𝑠 ∣ 𝑙𝑖𝑘𝑒) = 1
+2
+
+https://correoipn.sharepoint.com/sites/NLP7CM226-2/_layouts/15/Doc.aspx?sourcedoc={404eac05-5f02-43ac-8d53-d049440bf89e}&actio…
+
+1/5
+
+11/5/26, 11:24
+
+OneNote
+
+𝑃(𝑑𝑜𝑔𝑠 ∣ 𝑙𝑖𝑘𝑒) = 1
+2
+
+Sparsity problem
+• Many n‑grams never appear
+• Leads to zero probabilities
+Sentence with unseen bigram ⇒ total probability = 0
+
+Smoothing (with Example) (7 min)
+Why smoothing is needed
+Sentence:
+“I like parrots”
+If “like parrots” never appeared, then
+
+𝑃(𝑝𝑎𝑟𝑟𝑜𝑡𝑠 ∣ 𝑙𝑖𝑘𝑒) = 0
+Whole sentence probability becomes zero.
+
+Example: Add‑one (Laplace) smoothing
+Vocabulary size 𝑉 = 5
+Counts:
+• count(like cats) = 1
+• count(like dogs) = 1
+• count(like parrots) = 0
+• count(like) = 2
+Without smoothing:
+
+𝑃(𝑝𝑎𝑟𝑟𝑜𝑡𝑠 ∣ 𝑙𝑖𝑘𝑒) = 0
+With add‑one:
+
+𝑃(𝑤 ∣ 𝑙𝑖𝑘𝑒) =
+
+𝑐𝑜𝑢𝑛𝑡(𝑙𝑖𝑘𝑒 𝑤) + 1
+𝑐𝑜𝑢𝑛𝑡(𝑙𝑖𝑘𝑒) + 𝑉
+
+[Ecuación]
+Key idea :
+Take a little probability mass from frequent events to allow unseen ones.
+
+Evaluating Language Models: Perplexity
+Definition
+
+−1 / 𝑛
+
+𝑃𝑒𝑟𝑝𝑙𝑒𝑥𝑖𝑡𝑦 = 𝑃(𝑤𝑛1 )
+
+Equivalent (easier to compute):
+
+[Ecuación]
+
+Example: Perplexity calculation
+Suppose a sentence has 4 words and the model assigns:
+
+[Ecuación]
+Perplexity:
+
+[Ecuación]
+Interpretation:
+PP = 10 → On average, the model is choosing among 10 equally likely options at each step.
+PP = 100 → much worse model
+Lower perplexity = less surprised
+“Average branching factor”
+Is perplexity defined on training data or test data—and why?
+If Model A has lower perplexity than Model B, which one generalizes better?
+
+Why N‑grams Aren’t Enough
+Key limitations :
+• Fixed context
+• Sparsity
+• No semantic similarity
+• Vocabulary explosion
+“Dogs” and “cats” are unrelated unless explicitly seen together.
+
+Neural Language Models
+https://correoipn.sharepoint.com/sites/NLP7CM226-2/_layouts/15/Doc.aspx?sourcedoc={404eac05-5f02-43ac-8d53-d049440bf89e}&actio…
+
+2/5
+
+11/5/26, 11:24
+
+OneNote
+
+Early neural LM
+• Bengio et al. (2003) Université de Montréal, Montreal, Canada
+Context words
+w_{t-2}
+w_{t-1}
+|
+|
+v
+v
+Embedding
+Embedding
+lookup
+lookup
+|
+|
+v
+v
+e_{t-2}
+e_{t-1}
+\
+/
+\
+/
+v
+v
+[ Concatenate ]
+|
+v
+Hidden Layer h
+|
+v
+Linear Layer
+|
+v
+Softmax
+|
+v
+P(w_t | context)
+
+Large Language Models (LLMs)
+ELMo (2018)
+ELMo = Embeddings from Language Models
+• Authors: Peters et al.
+• Research group: Allen Institute for Artificial Intelligence (AI2), Seattle, USA
+○ Collaborators from University of Washington
+Key ideas:
+• Deep bidirectional language model
+• Contextual word representations
+• Different vectors for same word in different contexts
+Example:
+• “river bank” vs. “investment bank”
+
+How Do You Train a Large Language Model? Step 1:
+Data
+• Large text corpora:
+○ Books, Wikipedia, news, web text
+• Scale: billions to trillions of tokens
+
+Step 2: Tokenization
+• Subword tokenization (e.g., BPE, WordPiece)
+• Handles rare and unseen words efficiently
+
+Step 3: Training Objective (MLE)
+Autoregressive objective:
+
+[Ecuación]
+Each token is predicted from previous tokens.
+
+Concrete training example
+Sentence:
+“The cat sat on the mat.”
+Create training pairs:
+
+Input
+
+Target
+
+<s>
+
+The
+
+<s> The
+
+cat
+
+<s> The cat
+
+sat
+
+<s> The cat sat
+
+on
+
+<s> The cat sat on
+
+the
+
+<s> The cat sat on the mat
+<s> … mat
+</s>
+Each row contributes one loss term.
+Why is next‑token prediction considered “self‑supervised”?
+
+Step 4: Optimization
+• Use stochastic gradient descent
+• Typically:
+○ Mini‑batches
+
+https://correoipn.sharepoint.com/sites/NLP7CM226-2/_layouts/15/Doc.aspx?sourcedoc={404eac05-5f02-43ac-8d53-d049440bf89e}&actio…
+
+3/5
+
+11/5/26, 11:24
+
+OneNote
+
+○ Many epochs (passes over data)
+• Compute:
+○ Prediction
+○ Loss
+○ Gradient
+○ Parameter update
+You do not need labeled data beyond raw text.
+
+Step 5: Evaluation
+• Held‑out test set
+• Metric:
+○ Perplexity
+• Lower perplexity = better generalization
+Sample uses:
+
+s=“The sentiment of the sentence 'I like Pedro Infante' is:” Positive P(Positive|s)>>>
+P(Negative|s)
+
+s="Q: Who wrote the book 'Don Quixote'? A:" P(Dickens|s) <<<<< P(Cervantes|s)
+
+"What is the output of the statement 'a' + 'ab' in Python 3? (A) Error (B) aab (C) ab (D) a ab
+Answer:"
+P(aab|s) P( C | s) P(Error |s) <<<<<<P(B | s)g
+
+https://correoipn.sharepoint.com/sites/NLP7CM226-2/_layouts/15/Doc.aspx?sourcedoc={404eac05-5f02-43ac-8d53-d049440bf89e}&actio…
+
+4/5
+
+11/5/26, 11:24
+
+OneNote
+
+https://correoipn.sharepoint.com/sites/NLP7CM226-2/_layouts/15/Doc.aspx?sourcedoc={404eac05-5f02-43ac-8d53-d049440bf89e}&actio…
+
+5/5
+
+
