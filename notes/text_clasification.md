@@ -162,7 +162,7 @@ La media armónica penaliza más los valores desbalanceados que la media aritmé
 
 ### 5.5 Curva ROC y AUC
 
-La curva **ROC** (*Receiver Operating Characteristic*) graphical el *True Positive Rate* (Recall) contra el *False Positive Rate* para todos los posibles umbrales de decisión:
+La curva **ROC** (*Receiver Operating Characteristic*) grafica el *True Positive Rate* (Recall) contra el *False Positive Rate* para todos los posibles umbrales de decisión:
 
 $$TPR = \frac{TP}{TP + FN} \quad FPR = \frac{FP}{FP + TN}$$
 
